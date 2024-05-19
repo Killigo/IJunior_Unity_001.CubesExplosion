@@ -7,6 +7,9 @@ public class Spawner : MonoBehaviour
     [SerializeField] private int _minSpawnCount = 2;
     [SerializeField] private int _maxSpawnCount = 6;
 
+    private float _minExplodeChance = 0f;
+    private float _maxExplodeChance = 100f;
+
     private ObjectPool<Cube> _pool;
 
     private void Start()
@@ -21,7 +24,7 @@ public class Spawner : MonoBehaviour
     {
         List<Cube> explodableCubes = new();
 
-        float randomValue = Random.Range(0f, 100f);
+        float randomValue = Random.Range(_minExplodeChance, _maxExplodeChance);
 
         if (randomValue <= cube.SplitChance)
         {
