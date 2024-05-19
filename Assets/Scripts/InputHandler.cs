@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class InputManager : MonoBehaviour
+public class InputHandler : MonoBehaviour
 {
     [SerializeField] private float _maxDistance = 1000f;
 
@@ -13,7 +13,6 @@ public class InputManager : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, _maxDistance) && hit.collider.TryGetComponent(out Cube cube))
             {
-                //cube.Segmentation();
                 StartCoroutine(cube.Segmentation());
             }
         }
