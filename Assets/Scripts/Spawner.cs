@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
@@ -7,7 +8,6 @@ public class Spawner : MonoBehaviour
     [SerializeField] private int _maxSpawnCount = 6;
 
     private ObjectPool<Cube> _pool;
-    private int _segmentationСhance = 0;
 
     private void Start()
     {
@@ -19,30 +19,37 @@ public class Spawner : MonoBehaviour
 
     private void OnDestroyed(Cube cube)
     {
-        if (Random.Range(0, _segmentationСhance) == 0)
-        {
-            int randomCount = Random.Range(_minSpawnCount, _maxSpawnCount);
+        List<Cube> explodableCubes = new();
 
-            for (int i = 0; i < randomCount; i++)
+        float randomValue = Random.Range(0f, 100f);
+
+        if (randomValue <= cube.SplitChance)
+        {
+            int spawnCount = Random.Range(_minSpawnCount, _maxSpawnCount);
+
+            for (int i = 0; i < spawnCount; i++)
             {
                 Cube newCube = SpawnCube();
                 newCube.transform.position = cube.transform.localPosition;
                 newCube.transform.localScale = cube.transform.localScale / 2;
+                newCube.SplitChance = cube.SplitChance / 2;
 
                 StartCoroutine(newCube.Segmentation());
+
+                explodableCubes.Add(newCube);
             }
+
+            cube.Explode(explodableCubes);
         }
 
-        cube.Explode();
         cube.Destroyed -= OnDestroyed;
         _pool.PutObject(cube);
-
-        _segmentationСhance++;
     }
 
     private Cube SpawnCube()
     {
         Cube cube = _pool.GetObject();
+        cube.SetRandomColor();
         cube.Destroyed += OnDestroyed;
 
         return cube;

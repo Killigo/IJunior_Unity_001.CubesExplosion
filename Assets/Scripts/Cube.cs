@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Renderer))]
 public class Cube : MonoBehaviour
 {
     [SerializeField] private float _explosionRadius;
@@ -10,8 +11,16 @@ public class Cube : MonoBehaviour
 
     private float _minExplodeDelay = 1f;
     private float _maxExplodeDelay = 2f;
+    private Renderer _renderer;
+
+    public float SplitChance { get; set; } = 100f;
 
     public event Action<Cube> Destroyed;
+
+    private void Awake()
+    {
+        _renderer = GetComponent<Renderer>();
+    }
 
     public IEnumerator Segmentation()
     {
@@ -20,22 +29,18 @@ public class Cube : MonoBehaviour
         Destroyed?.Invoke(this);
     }
 
-    public void Explode()
+    public void Explode(List<Cube> explodableCubes)
     {
-        foreach (Rigidbody explodableObject in GetExplodableObjects())
-            explodableObject.AddExplosionForce(_explosionForce, transform.position, _explosionRadius);
+        foreach (Cube cube in explodableCubes)
+            cube.GetComponent<Rigidbody>().AddExplosionForce(_explosionForce, transform.position, _explosionRadius);
     }
 
-    private List<Rigidbody> GetExplodableObjects()
+    public void SetRandomColor()
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, _explosionRadius);
+        float channelRed = UnityEngine.Random.Range(0f, 1f);
+        float channelGreen = UnityEngine.Random.Range(0f, 1f);
+        float channelBlue = UnityEngine.Random.Range(0f, 1f);
 
-        List<Rigidbody> cubes = new();
-
-        foreach (Collider hit in hits)
-            if (hit.attachedRigidbody != null)
-                cubes.Add(hit.attachedRigidbody);
-
-        return cubes;
+        _renderer.material.color = new Color(channelRed, channelGreen, channelBlue);
     }
 }
