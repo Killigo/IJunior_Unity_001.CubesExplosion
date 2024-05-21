@@ -15,12 +15,9 @@ public class ObjectPool<T> where T : MonoBehaviour
         _container = container;
         _pool = new Queue<T>();
 
-        if (prewarmObjectsCount > 0)
+        for (int i = 0; i < prewarmObjectsCount; i++)
         {
-            for (int i = 0; i < prewarmObjectsCount; i++)
-            {
-                CreateObject();
-            }
+            CreateObject();
         }
     }
 

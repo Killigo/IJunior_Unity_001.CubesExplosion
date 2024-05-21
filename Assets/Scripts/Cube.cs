@@ -1,41 +1,43 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Renderer))]
+[RequireComponent(typeof(Rigidbody))]
+
 public class Cube : MonoBehaviour
 {
     [SerializeField] private float _explosionRadius;
     [SerializeField] private float _explosionForce;
 
-    private float _minExplodeDelay = 1f;
-    private float _maxExplodeDelay = 2f;
-    private Renderer _renderer;
+    public float SplitChance = 100f;
 
-    public float SplitChance { get; set; } = 100f;
+    private Renderer _renderer;
+    private Rigidbody _rigidbody;
 
     public event Action<Cube> Destroyed;
 
     private void Awake()
     {
         _renderer = GetComponent<Renderer>();
+        _rigidbody = GetComponent<Rigidbody>();
     }
 
-    public IEnumerator Segmentation()
+    private void OnEnable()
     {
-        yield return new WaitForSeconds(UnityEngine.Random.Range(_minExplodeDelay, _maxExplodeDelay));
+        SetRandomColor();
+    }
 
+    public void Segmentation()
+    {
         Destroyed?.Invoke(this);
     }
 
-    public void Explode(List<Cube> explodableCubes)
+    public void Explode()
     {
-        foreach (Cube cube in explodableCubes)
-            cube.GetComponent<Rigidbody>().AddExplosionForce(_explosionForce, transform.position, _explosionRadius);
+        _rigidbody.AddExplosionForce(_explosionForce, transform.position, _explosionRadius);
     }
 
-    public void SetRandomColor()
+    private void SetRandomColor()
     {
         float channelRed = UnityEngine.Random.Range(0f, 1f);
         float channelGreen = UnityEngine.Random.Range(0f, 1f);

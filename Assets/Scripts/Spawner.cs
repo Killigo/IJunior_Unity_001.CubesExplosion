@@ -9,6 +9,8 @@ public class Spawner : MonoBehaviour
 
     private float _minExplodeChance = 0f;
     private float _maxExplodeChance = 100f;
+    private int _chanceDivisor = 2;
+    private int _scaleDivisor = 2;
 
     private ObjectPool<Cube> _pool;
 
@@ -34,15 +36,14 @@ public class Spawner : MonoBehaviour
             {
                 Cube newCube = SpawnCube();
                 newCube.transform.position = cube.transform.localPosition;
-                newCube.transform.localScale = cube.transform.localScale / 2;
-                newCube.SplitChance = cube.SplitChance / 2;
-
-                StartCoroutine(newCube.Segmentation());
+                newCube.transform.localScale = cube.transform.localScale / _scaleDivisor;
+                newCube.SplitChance = cube.SplitChance / _chanceDivisor;
 
                 explodableCubes.Add(newCube);
             }
 
-            cube.Explode(explodableCubes);
+            foreach (Cube explodableCube in explodableCubes)
+                explodableCube.Explode();
         }
 
         cube.Destroyed -= OnDestroyed;
@@ -52,7 +53,6 @@ public class Spawner : MonoBehaviour
     private Cube SpawnCube()
     {
         Cube cube = _pool.GetObject();
-        cube.SetRandomColor();
         cube.Destroyed += OnDestroyed;
 
         return cube;
